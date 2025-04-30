@@ -10,9 +10,15 @@ public class DownloadService {
     public ResponseEntity<String> downloadVideo(String url) {
         try {
             Process process = new ProcessBuilder("yt-dlp", url).start();
-        } catch(IOException e) {
-            System.out.println(e.getMessage());
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                return ResponseEntity.ok("Download successful: " + url);
+            }
+            else {
+                return ResponseEntity.status(500).body("Download failed with exit code: " + exitCode);
+            }
+        } catch(IOException | InterruptedException e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
-        return ResponseEntity.ok("url: " + url);
     }
 }
