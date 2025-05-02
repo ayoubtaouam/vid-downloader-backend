@@ -4,6 +4,7 @@ import com.titlichargi.downloader.service.DownloadService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +42,7 @@ public class DownloadController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                     .body(resource);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 }
