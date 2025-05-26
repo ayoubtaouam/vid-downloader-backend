@@ -7,8 +7,8 @@ import java.io.IOException;
 
 @Service
 public class DownloadService {
-    public ResponseEntity<String> downloadVideo(String url) {
-        try {
+    public ResponseEntity<String> downloadVideo(String url) throws IOException, InterruptedException {
+        //try {
             Process process = new ProcessBuilder("yt-dlp", url).start();
             int exitCode = process.waitFor();
             if (exitCode == 0) {
@@ -17,8 +17,8 @@ public class DownloadService {
             else {
                 return ResponseEntity.status(500).body("Download failed with exit code: " + exitCode);
             }
-        } catch(IOException | InterruptedException e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
-        }
+        //} catch(IOException | InterruptedException e) {
+        //    return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        //}
     }
 }

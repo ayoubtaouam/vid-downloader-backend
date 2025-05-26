@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,23 +27,20 @@ public class DownloadController {
     }
 
     @PostMapping("download")
-    public ResponseEntity<String> download(@RequestBody Map<String, String> body) {
+    public ResponseEntity<String> download(@RequestBody Map<String, String> body) throws IOException, InterruptedException {
         String url = body.get("url");
         return downloadService.downloadVideo(url);
     }
 
     @GetMapping("file/{filename}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-        try {
-            Path path = Paths.get("download").resolve(filename).normalize();
-            InputStream is = Files.newInputStream(path);
-            InputStreamResource resource = new InputStreamResource(is);
-            return ResponseEntity.ok().
-                    contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                    .body(resource);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<Resource> getFile(@PathVariable String filename) throws IOException {
+
+        Path path = Paths.get("download").resolve(filename).normalize();
+        InputStream is = Files.newInputStream(path);
+        InputStreamResource resource = new InputStreamResource(is);
+        return ResponseEntity.ok().
+                contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(resource);
     }
 }
