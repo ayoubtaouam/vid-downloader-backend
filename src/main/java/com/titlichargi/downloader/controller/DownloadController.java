@@ -27,13 +27,13 @@ public class DownloadController {
     }
 
     @PostMapping("download")
-    public ResponseEntity<String> download(@RequestBody Map<String, String> body) throws IOException, InterruptedException {
+    public ResponseEntity<Map<String, String>> download(@RequestBody Map<String, String> body) throws IOException, InterruptedException {
         String url = body.get("url");
         return downloadService.downloadVideo(url);
     }
 
-    @GetMapping("file/{filename}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) throws IOException {
+    @GetMapping("file")
+    public ResponseEntity<Resource> getFile(@RequestParam String filename) throws IOException {
 
         Path path = Paths.get("download").resolve(filename).normalize();
         InputStream is = Files.newInputStream(path);
