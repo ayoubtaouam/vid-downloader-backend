@@ -4,6 +4,7 @@ import com.titlichargi.downloader.service.DownloadService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
@@ -21,9 +22,15 @@ public class DownloadController {
     @PostMapping("download")
     public void download(@RequestBody Map<String, String> body, HttpServletResponse response) throws Exception {
         String url = body.get("url");
-        String filename = downloadService.getFilename(url);
-        Process process = new ProcessBuilder("yt-dlp", "-o", "-", url).start();
-        response.setContentType("video/mp4");
+        String formatId = body.get("formatId");
+        String title = body.get("videoTitle");
+        String extension = body.get("extension");
+
+        String filename = downloadService.buildFilename(title, extension);
+
+        Process process = new ProcessBuilder("yt-dlp", "-f", formatId, "-o", "-", url).start();
+
+        response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=" + filename);
 
         try(
@@ -38,8 +45,16 @@ public class DownloadController {
             }
             int exitCode = process.waitFor();
             if(exitCode != 0) {
-                throw new Exception();
-            }
+                InputStream errorStream = process.getErrorStream();
+                String error = new String(errorStream.readAllBytes());
+                System.err.println("yt-dlp failed: " + error);
+                throw new RuntimeException("yt-dlp failed with exit code " + exitCode);
+            } else System.out.println("exit code: " + exitCode);
         }
+    }
+    @PostMapping("info")
+    public Map<String, Object> getInfo(@RequestBody Map<String, String> body) throws IOException, InterruptedException {
+        String url = body.get("url");
+        return downloadService.getVideoInfo(url);
     }
 }
